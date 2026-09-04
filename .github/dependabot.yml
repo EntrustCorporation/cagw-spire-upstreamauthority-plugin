@@ -1,0 +1,39 @@
+version: 2
+
+updates:
+  # Go module dependencies. Minor and patch bumps are grouped into a single PR
+  # to keep the volume manageable; majors are raised individually.
+  - package-ecosystem: gomod
+    directory: /
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    groups:
+      go-minor-and-patch:
+        update-types:
+          - minor
+          - patch
+
+  # Base images pinned in the Dockerfile: golang, alpine, and spire-server.
+  #
+  # NOTE: spire-server here and spire-plugin-sdk in go.mod must stay on the same
+  # release line. Dependabot treats them as unrelated and will bump them in
+  # separate PRs, so check the other when either moves. See the "Supported SPIRE
+  # versions" section of the README.
+  - package-ecosystem: docker
+    directory: /
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 3
+
+  # Actions referenced by .github/workflows.
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 3
+    groups:
+      actions:
+        update-types:
+          - minor
+          - patch

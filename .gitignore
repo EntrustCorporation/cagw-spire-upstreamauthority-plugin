@@ -1,0 +1,9 @@
+bin
+
+# Local build and verification output
+*.log
+
+# Local test credentials / captured certs / env files — never commit these
+test/*.p12
+test/*.pem
+test/*.env

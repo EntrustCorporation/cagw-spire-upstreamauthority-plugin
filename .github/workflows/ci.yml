@@ -1,0 +1,85 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+# Least privilege: no job here needs write access to the repository.
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  # Tracks the `go` directive in go.mod. Pinned to the 1.25 line rather than
+  # "stable" so CI keeps testing the minimum version the module declares.
+  GO_VERSION: "1.25.x"
+
+jobs:
+  build-test:
+    name: Build and test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: ${{ env.GO_VERSION }}
+
+      - name: Build
+        run: make build
+
+      # Proves the documented platforms actually cross-compile, so the README
+      # claim is verified rather than asserted.
+      - name: Cross-compile supported platforms
+        run: |
+          for arch in amd64 arm64; do
+            echo "::group::linux/$arch"
+            make build-linux TARGET_ARCH="$arch"
+            echo "::endgroup::"
+          done
+
+      - name: Check formatting
+        run: make fmt-check
+
+      - name: Verify go.mod and go.sum are tidy
+        run: make tidy-check
+
+      # TestIntegration_MintX509CA self-skips here: it requires the CAGW_*
+      # variables and a live CAGW, neither of which CI provides.
+      - name: Test
+        run: make test
+
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: ${{ env.GO_VERSION }}
+
+      # Version is pinned in the Makefile, so CI and contributors install the
+      # same linter. Fetched via the module proxy, covered by the checksum db.
+      - name: Install golangci-lint
+        run: make tools
+
+      - name: Lint
+        run: make lint
+
+  vulncheck:
+    name: Vulnerability scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: ${{ env.GO_VERSION }}
+
+      - name: Scan dependencies for known vulnerabilities
+        run: make vulncheck

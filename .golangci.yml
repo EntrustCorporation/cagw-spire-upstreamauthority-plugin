@@ -1,0 +1,120 @@
+version: "2"
+run:
+  timeout: 5m
+  tests: true
+  modules-download-mode: readonly
+linters:
+  enable:
+    - copyloopvar
+    - dupl
+    - gochecknoglobals
+    - gochecknoinits
+    - goconst
+    - gocritic
+    - gocyclo
+    - gosec
+    - lll
+    - misspell
+    - nakedret
+    - prealloc
+    - revive
+    - unconvert
+  settings:
+    dupl:
+      threshold: 150
+    goconst:
+      min-len: 3
+      min-occurrences: 3
+    gocritic:
+      disable-all: true
+      enabled-checks:
+        - appendCombine
+        - argOrder
+        - assignOp
+        - badCond
+        - boolExprSimplify
+        - builtinShadow
+        - captLocal
+        - caseOrder
+        - codegenComment
+        - commentedOutCode
+        - commentedOutImport
+        - defaultCaseOrder
+        - deprecatedComment
+        - docStub
+        - dupArg
+        - dupBranchBody
+        - dupCase
+        - dupSubExpr
+        - elseif
+        - emptyFallthrough
+        - equalFold
+        - flagDeref
+        - flagName
+        - hexLiteral
+        - indexAlloc
+        - initClause
+        - methodExprCall
+        - nilValReturn
+        - octalLiteral
+        - offBy1
+        - rangeExprCopy
+        - regexpMust
+        - sloppyLen
+        - stringXbytes
+        - switchTrue
+        - typeAssertChain
+        - typeSwitchVar
+        - typeUnparen
+        - underef
+        - unlambda
+        - unnecessaryBlock
+        - unslice
+        - valSwap
+        - weakCond
+        - yodaStyleExpr
+    gocyclo:
+      min-complexity: 16
+    lll:
+      line-length: 160
+      tab-width: 1
+    misspell:
+      locale: US
+    nakedret:
+      max-func-lines: 30
+    prealloc:
+      simple: true
+      range-loops: true
+      for-loops: false
+  exclusions:
+    generated: lax
+    presets:
+      - comments
+      - common-false-positives
+      - legacy
+      - std-error-handling
+    rules:
+      - linters:
+          - dupl
+          - gochecknoglobals
+          - goconst
+          - gocyclo
+          - gosec
+          - govet
+          - lll
+        path: _test\.go
+      - linters:
+          - staticcheck
+        text: "ST1005:" # error strings should not be capitalized
+formatters:
+  enable:
+    - gofmt
+    - goimports
+  settings:
+    gofmt:
+      simplify: true
+    goimports:
+      local-prefixes:
+        - github.com/EntrustCorporation/cagw-spire-upstreamauthority-plugin
+  exclusions:
+    generated: lax
